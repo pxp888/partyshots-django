@@ -14,6 +14,9 @@ urlpatterns = [
     path('getshot/', views.getShot, name='getshot'),
     path('upload/', views.upload, name='upload'),
     path('killshot/', views.killshot, name='killshot'),
+    path('subscribe/', views.subscribe, name='subscribe'),
+    path('unsubscribe/', views.unsubscribe, name='unsubscribe'),
+    path('killbum/', views.killbum, name='killbum'),
 ]
 
 

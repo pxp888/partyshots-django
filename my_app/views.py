@@ -23,7 +23,9 @@ if os.path.exists('env.py'): import env
 
 
 incoming = {}
-
+path='scratch'
+if not os.path.exists(path):
+    os.makedirs(path)
 
 
 @api_view(['GET'])
@@ -156,6 +158,10 @@ def getAlbums(request):
     except Album.DoesNotExist:
         return Response({'message': 'no albums found'})
     
+    subs = Subs.objects.filter(user=user)
+    for sub in subs:
+        bums[sub.album.code] = sub.album.name
+    
     return Response({'message':'ok', 'albums': bums})
 
 
@@ -173,16 +179,19 @@ def getAlbum(request):
         'name': album.name,
         'code': album.code,
         'thumbnail': create_presigned_url(album.thumbnail),
-        'created': album.created_at,
+        'created': album.created_at.strftime("%B %d, %Y %H:%M"),
         'user': album.user.username,
     }
 
     if user.is_authenticated:
         sub = Subs.objects.filter(album=album, user=user)
-        if sub: rep['status'] = 'subscribed'
-        if album.user == user: rep['status'] = 'owner'
+        rep['status'] = 1 # logged in guest
+        if sub: 
+            rep['status'] = 2 # subscribed
+        if album.user == user: 
+            rep['status'] = 3 # owner
     else:
-        rep['status'] = 'guest'
+        rep['status'] = 0  # not logged in
 
     return Response(rep)
     
@@ -216,7 +225,7 @@ def getShot(request):
             'filename': photo.filename,
             'link': create_presigned_url(photo.link),
             'tlink': create_presigned_url(photo.tlink),
-            'created': photo.created_at,
+            'created': photo.created_at.strftime("%B %d, %Y %H:%M"),
             'album': photo.album.name,
             'user': photo.user.username,
         }
@@ -356,7 +365,70 @@ def killshot(request):
     return Response({'message': 'deleted'})
     
 
+@api_view(['POST'])
+def subscribe(request):
+    if not request.user.is_authenticated:
+        return Response({'message': 'not logged in'})
 
-path='scratch'
-if not os.path.exists(path):
-    os.makedirs(path)
+    user = request.user
+    abcode = request.data.get('code')
+    try:
+        album = Album.objects.get(code=abcode)
+    except Album.DoesNotExist:
+        return Response({'message': 'album not found'})
+    
+    sub = Subs(album=album, user=user)
+    sub.save()
+    return Response({'message': 'subscribed'})
+
+
+@api_view(['POST'])
+def unsubscribe(request):
+    if not request.user.is_authenticated:
+        return Response({'message': 'not logged in'})
+
+    user = request.user
+    abcode = request.data.get('code')
+    try:
+        album = Album.objects.get(code=abcode)
+    except Album.DoesNotExist:
+        return Response({'message': 'album not found'})
+    
+    sub = Subs.objects.get(album=album, user=user)
+    sub.delete()
+    return Response({'message': 'unsubscribed'})
+
+
+@api_view(['POST'])
+def killbum(request):
+    if not request.user.is_authenticated:
+        return Response({'message': 'not logged in'})
+
+    user = request.user
+    abcode = request.data.get('code')
+    try:
+        album = Album.objects.get(code=abcode)
+    except Album.DoesNotExist:
+        return Response({'message': 'album not found'})
+    
+    if album.user != user:
+        return Response({'message': 'not authorized'})
+    
+    photos = Photo.objects.filter(album=album)
+    for photo in photos:
+        try:
+            delete_file_from_s3(photo.link)
+        except Exception as e:
+            print('delete error: ', e)
+        
+        try:
+            delete_file_from_s3(photo.tlink)
+        except Exception as e:
+            print('delete error: ', e)
+
+        photo.delete()
+
+    album.delete()
+    return Response({'message': 'deleted'})
+
+
