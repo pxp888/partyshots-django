@@ -451,3 +451,8 @@ def get_album_links(request):
         'names': names,
     }
     return Response(response)
+
+
+def homepage(request):
+    context = {}
+    return render(request, 'my_app/index.html', context)
