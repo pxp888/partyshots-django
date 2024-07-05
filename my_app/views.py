@@ -432,3 +432,22 @@ def killbum(request):
     return Response({'message': 'deleted'})
 
 
+@api_view(['GET'])
+def get_album_links(request):
+    code = request.GET.get('code')
+    try:
+        album = Album.objects.get(code=code)
+    except Album.DoesNotExist:
+        return Response({'message': 'album not found'})
+    
+    links = []
+    names = []
+    photos = Photo.objects.filter(album=album)
+    for photo in photos:
+        links.append(create_presigned_url(photo.link))
+        names.append(photo.filename)
+    response = {
+        'links': links,
+        'names': names,
+    }
+    return Response(response)
