@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-7wpcgb3d1is2mx8ms^6tq2-+m6u)*eo#od3v&kheqbpxn!91gz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', ]
 
 
 # Application definition
@@ -113,6 +113,11 @@ DATABASES = {
 }
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "http://127.0.0.1",
+    "https://*.herokuapp.com"
+]
 
 
 # Password validation
@@ -132,6 +137,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 
 # Internationalization
