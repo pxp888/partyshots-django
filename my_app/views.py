@@ -459,6 +459,14 @@ def get_album_links(request):
     return Response(response)
 
 
+@api_view(['GET'])
+def whoami(request):
+    if request.user.is_authenticated:
+        return Response({'message': 'logged in', 'user': request.user.username})
+    return Response({'message': 'not logged in'})
+
+
+
 def homepage(request):
     context = {}
     return render(request, 'my_app/index.html', context)

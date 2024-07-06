@@ -18,6 +18,7 @@ urlpatterns = [
     path('unsubscribe/', views.unsubscribe, name='unsubscribe'),
     path('killbum/', views.killbum, name='killbum'),
     path('get_album_links/', views.get_album_links, name='get_album_links'),
+    path('whoami/', views.whoami, name='whoami'),
 ]
 
 
