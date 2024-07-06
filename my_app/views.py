@@ -162,7 +162,13 @@ def getAlbums(request):
     for sub in subs:
         bums[sub.album.code] = sub.album.name
     
-    return Response({'message':'ok', 'albums': bums})
+    msg = {
+        'message':'ok',
+        'albums': bums,
+        'user': request.user.username,
+    }
+
+    return Response(msg)
 
 
 @api_view(['GET'])

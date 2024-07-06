@@ -7,7 +7,7 @@ This is the backend for partyshots, a react app for photo sharing.
 * User file storage is hosted on Amazon S3
 * React front end is hosted on github pages (in progress)
 
-[Live Site](https://partyshots-react-da4d9cbe0452.herokuapp.com/)
+[live site](https://pxp888.github.io/partyshots-react/)
 
 [frontend repo](https://github.com/pxp888/partyshots-react)
 
